@@ -47,7 +47,6 @@ import com.rubix.Consensus.QuorumConsensus;
 import com.rubix.Datum.Dependency;
 import com.rubix.Resources.Functions;
 import com.rubix.Resources.IPFSNetwork;
-import com.rubix.TokenTransfer.TransferPledge.Pledger;
 import com.rubix.core.NFTResources.NFTReceiver;
 import com.rubix.core.Resources.QuorumPingReceiveThread;
 import com.rubix.core.Resources.Receiver;
@@ -83,6 +82,18 @@ public class Basics {
         	Dependency.checkDatumFolder();
             pathSet();
 
+            QuorumConsensus alpha1 = new QuorumConsensus("alpha",QUORUM_PORT);
+            Thread alpha1Thread = new Thread(alpha1);
+            alpha1Thread.start();
+
+            QuorumConsensus beta1 = new QuorumConsensus("beta",QUORUM_PORT+1);
+            Thread beta1Thread = new Thread(beta1);
+            beta1Thread.start();
+
+            QuorumConsensus gamma1 = new QuorumConsensus("gamma",QUORUM_PORT+2);
+            Thread gamma1Thread = new Thread(gamma1);
+            gamma1Thread.start();
+
             Receiver receiver = new Receiver();
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
@@ -91,13 +102,15 @@ public class Basics {
             Thread receiverPingThread = new Thread(receiverPingReceive);
             receiverPingThread.start();
 
+            QuorumPingReceiveThread quorumPingReceiveThread = new QuorumPingReceiveThread();
+            Thread quorumPingThread = new Thread(quorumPingReceiveThread);
+            quorumPingThread.start();
+
             NFTReceiver nftReceiver = new NFTReceiver();
-            Thread nftReceiverThread = new Thread(nftReceiver);
+            Thread nftReceiverThread= new Thread(nftReceiver);
             nftReceiverThread.start();
 
-            Pledger pledger = new Pledger();
-            Thread pledgerThread = new Thread(pledger);
-            pledgerThread.start();
+
 
             tokenBank();
 
@@ -149,20 +162,7 @@ public class Basics {
             }
            
 
-            /*
-             * Background Thread is commented for Token file Missing Issue.
-             * String DATAHASH_PATH = DATA_PATH.concat("DataHash");
-             * File dataHashFolder = new File(DATAHASH_PATH);
-             * if(!dataHashFolder.exists()) {
-             * dataHashFolder.mkdir();
-             * generateHashtableBG();
-             * }
-             * 
-             * 
-             * Background background = new Background();
-             * Thread backThread = new Thread(background);
-             * backThread.start();
-             */
+            
 
             JSONObject result = new JSONObject();
             JSONObject contentObject = new JSONObject();
@@ -176,7 +176,7 @@ public class Basics {
         }
     }
 
-    @RequestMapping(value = "/startQuorumService", method = RequestMethod.POST, produces = { "application/json",
+    /* @RequestMapping(value = "/startQuorumService", method = RequestMethod.POST, produces = { "application/json",
             "application/xml" })
     public static String startQuorumService(@RequestBody RequestModel requestModel)
             throws IOException, JSONException, InterruptedException {
@@ -190,15 +190,13 @@ public class Basics {
 
             String quorumKeyPass = requestModel.getPvtKeyPass();
 
-            // check for wrong pvt key password entered
             boolean checkFlag = checkForQuorumKeyPassword(quorumKeyPass);
 
             if (checkFlag == false) {
                 BasicsLogger.debug(
                         "\n Response code : 400. Incorrect password for quorum private key. Please use the correct password and re-run the service.\n");
                 JSONObject resultObject = new JSONObject();
-                // resultObject.put("did", "");
-                // resultObject.put("tid", "null");
+               
                 resultObject.put("status", "Failed");
                 resultObject.put("message",
                         "Incorrect password for quorum private key. Please use the correct password and re-run the service.");
@@ -207,8 +205,7 @@ public class Basics {
                 JSONObject contentObject = new JSONObject();
                 contentObject.put("response", resultObject);
                 result.put("data", contentObject);
-                // result.put("message", "");
-                // result.put("status", "true");
+                
                 result.put("response code", 400);
                 return result.toString();
             }
@@ -261,7 +258,7 @@ public class Basics {
 
         }
 
-    }
+    } */
 
     @RequestMapping(value = "/check", method = RequestMethod.GET, produces = { "application/json", "application/xml" })
     public static String checkRubixDir() throws JSONException, IOException {
