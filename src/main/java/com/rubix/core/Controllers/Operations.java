@@ -30,8 +30,8 @@ import static com.rubix.Mining.HashChain.*;
 @RestController
 public class Operations {
 
-    @RequestMapping(value = "/initiateTransaction", method = RequestMethod.POST,
-            produces = {"application/json", "application/xml"})
+    @RequestMapping(value = "/initiateTransaction", method = RequestMethod.POST, produces = { "application/json",
+            "application/xml" })
     public static String initiateTransaction(@RequestBody RequestModel requestModel) throws Exception {
         if (!mainDir())
             return checkRubixDir();
@@ -42,7 +42,6 @@ public class Operations {
         double tokenCount = requestModel.getTokenCount();
         String comments = requestModel.getComment();
         int type = requestModel.getType();
-
 
         int intPart = (int) tokenCount;
         double decimal = tokenCount - intPart;
@@ -71,7 +70,6 @@ public class Operations {
 
         }
 
-
         Double available = Functions.getBalance();
         if (tokenCount > available) {
             System.out.println("Amount greater than available");
@@ -88,7 +86,6 @@ public class Operations {
             result.put("message", "");
             return result.toString();
         }
-
 
         JSONObject objectSend = new JSONObject();
         objectSend.put("receiverDidIpfsHash", recDID);
@@ -109,11 +106,7 @@ public class Operations {
 
     }
 
-
-    
-
-    @RequestMapping(value = "/mine", method = RequestMethod.GET,
-            produces = {"application/json", "application/xml"})
+    @RequestMapping(value = "/mine", method = RequestMethod.GET, produces = { "application/json", "application/xml" })
     public static String mine(int type) throws Exception {
         if (!mainDir())
             return checkRubixDir();
@@ -125,26 +118,27 @@ public class Operations {
         return APIHandler.create(type).toString();
 
     }
- 
-    @RequestMapping(value = "/create", method = RequestMethod.POST,
-            produces = {"application/json", "application/xml"})
-    public String Create(@RequestParam("image") MultipartFile imageFile) throws IOException, JSONException, InterruptedException {
+
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = { "application/json",
+            "application/xml" })
+    public String Create(@RequestParam("image") MultipartFile imageFile)
+            throws IOException, JSONException, InterruptedException {
         setDir();
-        
+
         File RubixFolder = new File(dirPath);
         JSONObject result = new JSONObject();
         JSONObject contentObject = new JSONObject();
-        
+
         if (RubixFolder.exists()) {
-        	 contentObject.put("response", "Rubix Wallet already exists!");        	
-        }else {
-        	// deleteFolder(RubixFolder);
+            contentObject.put("response", "Rubix Wallet already exists!");
+        } else {
+            // deleteFolder(RubixFolder);
             JSONObject didResult = createDID(imageFile.getInputStream());
             if (didResult.getString("Status").contains("Success"))
                 createWorkingDirectory();
 
             start();
-            
+
             contentObject.put("response", didResult);
         }
         APIHandler.networkInfo();
@@ -154,10 +148,10 @@ public class Operations {
         return result.toString();
     }
 
-
-    @RequestMapping(value = "/hashchain", method = RequestMethod.POST,
-            produces = {"application/json", "application/xml"})
-    public String Create(@RequestParam("tid") String tid, @RequestParam("DIDs") String[] DIDs, @RequestParam("matchRule") int matchRule) throws IOException, JSONException, InterruptedException {
+    @RequestMapping(value = "/hashchain", method = RequestMethod.POST, produces = { "application/json",
+            "application/xml" })
+    public String Create(@RequestParam("tid") String tid, @RequestParam("DIDs") String[] DIDs,
+            @RequestParam("matchRule") int matchRule) throws IOException, JSONException, InterruptedException {
 
         String hash = newHashChain(tid, DIDs, matchRule);
 
@@ -168,22 +162,22 @@ public class Operations {
         return result.toString();
     }
 
-    @RequestMapping(value = "/generate", method = RequestMethod.GET,
-            produces = {"application/json", "application/xml"})
+    @RequestMapping(value = "/generate", method = RequestMethod.GET, produces = { "application/json",
+            "application/xml" })
     public String generate() throws JSONException {
         int width = 256;
         int height = 256;
         String src = null;
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        //File f;
+        // File f;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int a = (int) (Math.random() * 256); //alpha
-                int r = (int) (Math.random() * 256); //red
-                int g = (int) (Math.random() * 256); //green
-                int b = (int) (Math.random() * 256); //blue
+                int a = (int) (Math.random() * 256); // alpha
+                int r = (int) (Math.random() * 256); // red
+                int g = (int) (Math.random() * 256); // green
+                int b = (int) (Math.random() * 256); // blue
 
-                int p = (a << 24) | (r << 16) | (g << 8) | b; //pixel
+                int p = (a << 24) | (r << 16) | (g << 8) | b; // pixel
                 img.setRGB(x, y, p);
             }
         }
@@ -206,14 +200,15 @@ public class Operations {
         return result.toString();
     }
 
-    @RequestMapping(value = "/ownerIdentity", method = RequestMethod.POST,
-            produces = {"application/json", "application/xml"})
-    public String ownerIdentity(@RequestParam("tokens") JSONArray tokensArray) throws IOException, JSONException, InterruptedException {
+    @RequestMapping(value = "/ownerIdentity", method = RequestMethod.POST, produces = { "application/json",
+            "application/xml" })
+    public String ownerIdentity(@RequestParam("tokens") JSONArray tokensArray)
+            throws IOException, JSONException, InterruptedException {
         if (!mainDir())
             return checkRubixDir();
         if (!Basics.mutex)
             start();
-            
+
         Functions.pathSet();
         String didFile = readFile(DATA_PATH.concat("DID.json"));
         JSONArray didArray = new JSONArray(didFile);
@@ -227,68 +222,111 @@ public class Operations {
         result.put("status", "true");
         return result.toString();
     }
-    
+
     @RequestMapping(value = "/commitBlock", method = RequestMethod.POST, produces = { "application/json",
+            "application/xml" })
+    public static String commitBlock(@RequestBody RequestModel requestModel) throws Exception {
+        if (!mainDir())
+            return checkRubixDir();
+        if (!Basics.mutex)
+            start();
+        System.out.println(requestModel.toString());
+        String blockHash = requestModel.getBlockHash();
+        String comments = requestModel.getComment();
+        int type = requestModel.getType();
+        /*
+         * String pvtKeyPass = requestModel.getPvtKeyPass();
+         * 
+         * //If user forgets to input the private key password in the curl request.
+         * if(pvtKeyPass==null){
+         * System.out.
+         * println("Please include your private key password in the transaction request"
+         * );
+         * JSONObject resultObject = new JSONObject();
+         * resultObject.put("did", "");
+         * resultObject.put("tid", "null");
+         * resultObject.put("status", "Failed");
+         * resultObject.put("message",
+         * "Your private Key password must be provided. If you haven't generated keys, use /generateEcDSAKeys and then proceed to perform token transfer"
+         * );
+         * JSONObject result = new JSONObject();
+         * JSONObject contentObject = new JSONObject();
+         * contentObject.put("response", resultObject);
+         * result.put("data", contentObject);
+         * result.put("message", "");
+         * result.put("status", "true");
+         * return result.toString();
+         * }
+         */
+
+        // System.out.println("Opertaions - blockHash " + blockHash + " comments " +
+        // comments + " type " + type);
+
+        JSONObject objectSend = new JSONObject();
+        objectSend.put("blockHash", blockHash);
+        objectSend.put("type", type);
+        objectSend.put("comment", comments);
+        // objectSend.put("pvtKeyPass", pvtKeyPass);
+
+        // System.out.println("Opertaions - objectsend is " + objectSend.toString());
+
+        // System.out.println("Opertaions - Starting to commit block");
+        // System.out.println("Opertaions - ObjectSend " + objectSend.toString());
+        JSONObject commitBlockObject = APIHandler.commit(objectSend.toString());
+
+        // System.out.println("Opertaions -block commit object is " +
+        // commitBlockObject.toString());
+        // System.out.println("Block commit status is "+
+        // commitBlockObject.getString("status").toLowerCase());
+
+        JSONObject result = new JSONObject();
+        JSONObject contentObject = new JSONObject();
+        contentObject.put("response", commitBlockObject);
+        // System.out.println("Opertaions - commitBlockObject " +
+        // commitBlockObject.toString());
+        // System.out.println("Opertaions - contentObject " + contentObject.toString());
+        result.put("data", contentObject);
+        // result.put("message", "");
+        result.put("status", "true");
+        // System.out.println("result " + result.toString());
+
+        return result.toString();
+
+    }
+
+    @RequestMapping(value = "/verifyCommit", method = RequestMethod.POST, produces = { "application/json",
     "application/xml" })
-public static String commitBlock(@RequestBody RequestModel requestModel) throws Exception {
-if (!mainDir())
-    return checkRubixDir();
-if (!Basics.mutex)
-    start();
-System.out.println(requestModel.toString());
-String blockHash = requestModel.getBlockHash();
-String comments = requestModel.getComment();
-int type = requestModel.getType();
-String pvtKeyPass = requestModel.getPvtKeyPass();
+    public static String verifyCommit(@RequestBody RequestModel requestModel) throws Exception {
+        if (!mainDir())
+            return checkRubixDir();
+        if (!Basics.mutex)
+            start();
 
-//If user forgets to input the private key password in the curl request.
-if(pvtKeyPass==null){
-    System.out.println("Please include your private key password in the transaction request");
-    JSONObject resultObject = new JSONObject();
-    resultObject.put("did", "");
-    resultObject.put("tid", "null");
-    resultObject.put("status", "Failed");
-    resultObject.put("message", "Your private Key password must be provided. If you haven't generated keys, use /generateEcDSAKeys and then proceed to perform token transfer");
-    JSONObject result = new JSONObject();
-    JSONObject contentObject = new JSONObject();
-    contentObject.put("response", resultObject);
-    result.put("data", contentObject);
-    result.put("message", "");
-    result.put("status", "true");
-    return result.toString();
-}
+        String blockHash = requestModel.getBlockHash();
+        
 
-//System.out.println("Opertaions - blockHash " + blockHash + " comments " + comments + " type " + type);
+        System.out.println("Opertaions - blockHash " + blockHash);
 
-JSONObject objectSend = new JSONObject();
-objectSend.put("blockHash", blockHash);
-objectSend.put("type", type);
-objectSend.put("comment", comments);
-objectSend.put("pvtKeyPass", pvtKeyPass);
+        JSONObject objectSend = new JSONObject();
+        objectSend.put("blockHash", blockHash);
 
+        System.out.println("Opertaions - objectsend is " + objectSend.toString());
+        JSONObject commitBlockObject = verifySpecificCommit(blockHash);
+        // System.out.println("Block commit status is "+
+        // commitBlockObject.getString("status").toLowerCase());
 
-//System.out.println("Opertaions - objectsend is " + objectSend.toString());
+        JSONObject result = new JSONObject();
+        JSONObject contentObject = new JSONObject();
+        contentObject.put("response", commitBlockObject);
+        System.out.println("Opertaions - commitBlockObject " + commitBlockObject.toString());
+        System.out.println("Opertaions - contentObject " + contentObject.toString());
+        result.put("data", contentObject);
+        //result.put("message", "");
+        result.put("status", "true");
+        System.out.println("result " + result.toString());
 
-//System.out.println("Opertaions - Starting to commit block");
-//System.out.println("Opertaions - ObjectSend " + objectSend.toString());
-JSONObject commitBlockObject = APIHandler.commit(objectSend.toString());
+        return result.toString();
 
-//System.out.println("Opertaions -block commit object is " + commitBlockObject.toString());
-// System.out.println("Block commit status is "+
-// commitBlockObject.getString("status").toLowerCase());
-
-JSONObject result = new JSONObject();
-JSONObject contentObject = new JSONObject();
-contentObject.put("response", commitBlockObject);
-//System.out.println("Opertaions - commitBlockObject " + commitBlockObject.toString());
-//System.out.println("Opertaions - contentObject " + contentObject.toString());
-result.put("data", contentObject);
-//result.put("message", "");
-result.put("status", "true");
-//System.out.println("result " + result.toString());
-
-return result.toString();
-
-}
+    }
 
 }

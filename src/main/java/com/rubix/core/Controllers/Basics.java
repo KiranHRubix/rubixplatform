@@ -77,7 +77,7 @@ public class Basics {
         if (mainDir()) {
         	
             mutex = true;
-            launch();
+            //launch();
             Dependency.checkDatumPath();
         	Dependency.checkDatumFolder();
             pathSet();
