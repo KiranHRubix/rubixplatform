@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.rubix</groupId>
-	<artifactId>SHA-G</artifactId>
-	<version>1.011</version>
-	<name>SHA-G</name>
+	<artifactId>DATUM-NFT-EISMEER</artifactId>
+	<version>0.6</version>
+	<name>DATUM-NFT-EISMEER</name>
 	<description>Rubix Project</description>
 
 	<properties>
@@ -22,12 +22,12 @@
 		<dependency>
 			<groupId>com.did.core</groupId>
    			<artifactId>did</artifactId>
-    		<version>8.7</version>
+    		<version>11.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.rubix.core</groupId>
-  <artifactId>SHA-G</artifactId>
-  <version>2.1.021</version>
+  <artifactId>DATUM-NFT-EISMEER</artifactId>
+  <version>0.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
